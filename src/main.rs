@@ -1,9 +1,14 @@
+#![warn(clippy::all)]
+
 mod ecosys;
 mod uname;
+mod osrelease;
+
 use ecosys::Ecos;
 use std::env::{args, Args};
 use std::io::{Error, ErrorKind, Result};
 use uname::Uname;
+use osrelease::OsRelease;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const AUTHOR: &str = env!("CARGO_PKG_AUTHORS");
@@ -29,7 +34,7 @@ fn _errorhere<R, T: ToString>(kind: ErrorKind, s: T) -> Result<R> {
 }
 
 fn main() -> Result<()> {
-    let rfetch = Rfetch::create(Ecos::new(), Uname::new()?);
+    let rfetch = Rfetch::create(Ecos::new(), Uname::new()?, OsRelease::open()?);
 
     if let Err(e) = rfetch.run(args()) {
         eprintln!("{}", e);
@@ -43,11 +48,12 @@ fn main() -> Result<()> {
 struct Rfetch {
     user: Ecos,
     uname: Uname,
+    osrel: OsRelease,
 }
 
 impl Rfetch {
-    pub fn create(user: Ecos, uname: Uname) -> Rfetch {
-        Self { user, uname } // logo: Vec::new() }
+    pub fn create(user: Ecos, uname: Uname, osrel: OsRelease) -> Rfetch {
+        Self { user, uname, osrel } // logo: Vec::new() }
     }
 
     /// This is effectively the main function.
@@ -213,9 +219,7 @@ impl Rfetch {
     }
 
     fn print_distro(&self) {
-        if let Some(d) = &self.user.distro {
-            println!("Distro:\t\t{} {}", d, self.uname.sysname)
-        }
+        println!("Distro:\t\t{}", self.osrel.name)
     }
 }
 

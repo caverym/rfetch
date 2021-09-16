@@ -15,7 +15,6 @@ pub struct Ecos {
     pub shell: Option<String>,
     pub desktop: Option<String>,
     pub session: Option<String>,
-    pub distro: Option<String>,
     pub cpu: Option<String>,
     pub board: Option<String>,
     pub mem: Option<String>,
@@ -31,7 +30,6 @@ impl Ecos {
             shell: Self::getshell(),
             desktop: Self::getdesktop(),
             session: Self::getsession(),
-            distro: Self::getdistro(),
             cpu: Self::getcpu(),
             board: Self::getproduct(),
             mem: Self::getmem(),
@@ -60,10 +58,6 @@ impl Ecos {
 
     fn getsession() -> Option<String> {
         Some(var("XDG_SESSION_TYPE").ok()?.to_title())
-    }
-
-    fn getdistro() -> Option<String> {
-        read_distro().ok()
     }
 
     fn getcpu() -> Option<String> {
@@ -98,21 +92,6 @@ impl Ecos {
     fn getuptime() -> Option<String> {
         read_uptime().ok()
     }
-}
-
-/// This function will read the `/etc/lsb-release` file on a Linux system and
-/// parse to find the `DISTRIB_ID` item. Returns `Ok(DISTRIB_ID)` on success.
-fn read_distro() -> Result<String> {
-    let lsb = read_file("/etc/lsb-release")?;
-
-    let v: Vec<&str> = lsb.split('\n').collect();
-    for l in v {
-        if l.contains("DISTRIB_ID") {
-            return Ok(get_special(l, '=', 1));
-        }
-    }
-
-    error!("failed to read distro")
 }
 
 fn read_cpu() -> Result<String> {
