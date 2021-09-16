@@ -3,15 +3,15 @@ use std::io::{Error, Read};
 
 #[derive(Debug)]
 pub struct OsRelease {
-    pub name: String,
-    pub pretty_name: String,
-    pub id: String,
-    pub build_id: String,
-    pub ansi_colors: Vec<String>,
-    pub home_url: String,
-    pub doc_url: String,
-    pub support_url: String,
-    pub bug_rl: String,
+    pub name: Option<String>,
+    pub pretty_name: Option<String>,
+    pub id: Option<String>,
+    pub build_id: Option<String>,
+    pub ansi_colors: Option<Vec<String>>,
+    pub home_url: Option<String>,
+    pub doc_url: Option<String>,
+    pub support_url: Option<String>,
+    pub bug_rl: Option<String>,
 }
 
 impl OsRelease {
@@ -40,15 +40,27 @@ impl OsRelease {
             let row: Vec<&str> = line.split('=').collect();
             if row.len() == 2 {
                 match row[0] {
-                    "NAME" => osrels.name = row[1].trim_matches('"').to_string(),
-                    "PRETTY_NAME" => osrels.pretty_name = row[1].trim_matches('"').to_string(),
-                    "ID" => osrels.id = row[1].to_string(),
-                    "BUILD_ID" => osrels.build_id = row[1].trim_matches('"').to_string(),
-                    "ANSI_COLOR" => osrels.ansi_colors = row[1].trim_matches('"').split(';').map(|c| c.to_string()).collect(),
-                    "HOME_URL" => osrels.home_url = row[1].trim_matches('"').to_string(),
-                    "DOCUMENTATION_URL" => osrels.doc_url = row[1].trim_matches('"').to_string(),
-                    "SUPPORT_URL" => osrels.support_url = row[1].trim_matches('"').to_string(),
-                    "BUG_REPORT_URL" => osrels.bug_rl = row[1].trim_matches('"').to_string(),
+                    "NAME" => osrels.name = Some(row[1].trim_matches('"').to_string()),
+                    "PRETTY_NAME" => {
+                        osrels.pretty_name = Some(row[1].trim_matches('"').to_string())
+                    }
+                    "ID" => osrels.id = Some(row[1].to_string()),
+                    "BUILD_ID" => osrels.build_id = Some(row[1].trim_matches('"').to_string()),
+                    "ANSI_COLOR" => {
+                        osrels.ansi_colors = row[1]
+                            .trim_matches('"')
+                            .split(';')
+                            .map(|c| Some(c.to_string()))
+                            .collect()
+                    }
+                    "HOME_URL" => osrels.home_url = Some(row[1].trim_matches('"').to_string()),
+                    "DOCUMENTATION_URL" => {
+                        osrels.doc_url = Some(row[1].trim_matches('"').to_string())
+                    }
+                    "SUPPORT_URL" => {
+                        osrels.support_url = Some(row[1].trim_matches('"').to_string())
+                    }
+                    "BUG_REPORT_URL" => osrels.bug_rl = Some(row[1].trim_matches('"').to_string()),
                     _ => (),
                 }
             }

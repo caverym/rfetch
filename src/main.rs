@@ -1,14 +1,14 @@
 #![warn(clippy::all)]
 
 mod ecosys;
-mod uname;
 mod osrelease;
+mod uname;
 
 use ecosys::Ecos;
+use osrelease::OsRelease;
 use std::env::{args, Args};
 use std::io::{Error, ErrorKind, Result};
 use uname::Uname;
-use osrelease::OsRelease;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const AUTHOR: &str = env!("CARGO_PKG_AUTHORS");
@@ -82,7 +82,9 @@ impl Rfetch {
             "--help" | "-h" => Self::help(),
             "--version" | "-v" => Self::version(),
             #[cfg(debug_assertions)]
-            "--debug" => {dbg!(self);}
+            "--debug" => {
+                dbg!(self);
+            }
             _ => arg.chars().try_for_each(|x| self.parse_chars(x))?,
         }
 
@@ -219,7 +221,7 @@ impl Rfetch {
     }
 
     fn print_distro(&self) {
-        println!("Distro:\t\t{}", self.osrel.name)
+        printo!("Distro:\t\t{}\n", self.osrel.name)
     }
 }
 
